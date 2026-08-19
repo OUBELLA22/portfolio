@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Count With Me! - Kids Counting Song</title>
+<title>Kids Counting Song - 1 to 10!</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bubblegum+Sans&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
   font-family: 'Fredoka One', cursive;
   overflow: hidden;
@@ -16,829 +15,919 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #FFE66D, #FF6B6B);
-  transition: background 1s ease;
+  background: #1a1a2e;
 }
 
-#stage {
+#video-container {
   width: 100vw;
   height: 100vh;
   position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
 }
 
-/* Progress Bar */
 #progress-bar {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  height: 8px;
-  background: linear-gradient(90deg, #FF6B6B, #FFE66D, #4ECDC4, #45B7D1, #96E6A1);
-  width: 0%;
+  height: 6px;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #a855f7);
   z-index: 1000;
-  border-radius: 0 4px 4px 0;
   transition: width 0.3s linear;
+  border-radius: 0 3px 3px 0;
+}
+
+.scene {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  padding: 20px;
+}
+.scene.active { opacity: 1; }
+
+.scene-text {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: white;
+  text-align: center;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+  line-height: 1.4;
+  z-index: 10;
+  position: relative;
+}
+
+.scene-text.large {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+}
+
+.number-display {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(4rem, 12vw, 10rem);
+  color: #fff;
+  text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+  z-index: 10;
+  position: relative;
 }
 
 /* Play/Replay Buttons */
-.btn {
-  font-family: 'Fredoka One', cursive;
-  font-size: 2.5rem;
-  padding: 20px 50px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
-  z-index: 100;
-}
-
-.btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-}
-
-#play-btn {
-  background: linear-gradient(135deg, #FF6B6B, #FF8E53);
-  animation: pulse 1.5s infinite;
-}
-
-#replay-btn {
-  background: linear-gradient(135deg, #4ECDC4, #45B7D1);
-  display: none;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-
-/* Scene Container */
-.scene {
+#play-btn, #replay-btn {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  border: none;
+  border-radius: 50%;
+  width: 120px; height: 120px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(255,107,107,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
+  animation: pulse 1.5s infinite;
+}
+#play-btn:hover, #replay-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+#replay-btn { display: none; }
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.08); }
 }
 
-.scene.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Text Styles */
-.song-text {
-  font-family: 'Fredoka One', cursive;
-  font-size: 3rem;
-  color: white;
-  text-align: center;
-  text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-  padding: 20px;
-  line-height: 1.4;
-  z-index: 10;
-}
-
-.song-text.small { font-size: 2rem; }
-.song-text.large { font-size: 4.5rem; }
-.song-text.huge { font-size: 6rem; }
-
-.highlight {
-  color: #FFE66D;
-  animation: bounce-text 0.5s ease;
-}
-
-@keyframes bounce-text {
+/* Character Animations */
+@keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-20px); }
 }
-
-/* Number with face */
-.number-face {
-  position: relative;
-  display: inline-block;
-  font-size: 8rem;
-  color: #FF6B6B;
-  text-shadow: 4px 4px 8px rgba(0,0,0,0.2);
-  animation: number-bounce 0.8s ease infinite;
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-40px); }
 }
-
-@keyframes number-bounce {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-20px) rotate(3deg); }
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-20deg); }
+  75% { transform: rotate(20deg); }
 }
-
-/* Floating Bubbles */
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: float-up 6s ease-in-out infinite;
+@keyframes dance {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-10px) rotate(-5deg); }
+  75% { transform: translateX(10px) rotate(5deg); }
 }
-
-@keyframes float-up {
-  0% { transform: translateY(100vh) scale(0); opacity: 0; }
-  20% { opacity: 0.3; }
-  80% { opacity: 0.3; }
-  100% { transform: translateY(-100px) scale(1); opacity: 0; }
+@keyframes clap {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.8); }
 }
-
-/* Confetti */
-.confetti {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  opacity: 0.9;
-  animation: confetti-fall 3s ease-in-out forwards;
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
 }
-
-@keyframes confetti-fall {
-  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-/* Star Burst */
-.starburst {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: starburst-anim 1s ease-out forwards;
-}
-
-@keyframes starburst-anim {
-  0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(3) rotate(180deg); opacity: 0; }
-}
-
-/* Scene transitions */
-.zoom-in { animation: zoom-in 0.6s ease forwards; }
-@keyframes zoom-in {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.slide-left { animation: slide-left 0.6s ease forwards; }
-@keyframes slide-left {
-  0% { transform: translateX(100%); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-
-.slide-up { animation: slide-up 0.6s ease forwards; }
-@keyframes slide-up {
-  0% { transform: translateY(100%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.spin-in { animation: spin-in 0.6s ease forwards; }
-@keyframes spin-in {
-  0% { transform: rotate(-180deg) scale(0); opacity: 0; }
-  100% { transform: rotate(0deg) scale(1); opacity: 1; }
-}
-
-/* SVG Character Animations */
-@keyframes ray-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes wing-flap {
+@keyframes flap {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(-30deg); }
 }
-
-@keyframes star-twinkle {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(0.8); opacity: 0.6; }
+@keyframes frogJump {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  30% { transform: translateY(0) scaleY(0.8); }
+  50% { transform: translateY(-30px) scaleY(1.1); }
 }
-
-@keyframes frog-jump {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-40px); }
-}
-
-@keyframes hand-clap {
-  0%, 100% { transform: rotate(0deg) translateX(0); }
-  50% { transform: rotate(10deg) translateX(20px); }
-}
-
-@keyframes narrator-bob {
+@keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
-
-.sun-character { animation: ray-rotate 8s linear infinite; }
-.bird-wing { animation: wing-flap 0.4s ease-in-out infinite; transform-origin: right center; }
-.star-character { animation: star-twinkle 1.5s ease-in-out infinite; }
-.frog-character { animation: frog-jump 1s ease-in-out infinite; }
-.hand-left { animation: hand-clap 0.5s ease-in-out infinite; }
-.hand-right { animation: hand-clap 0.5s ease-in-out infinite reverse; }
-.narrator-character { animation: narrator-bob 2s ease-in-out infinite; }
-
-/* Call and response styles */
-.call-text {
-  font-size: 3.5rem;
-  color: #FFE66D;
+@keyframes confettiFall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes numberPop {
+  0% { transform: scale(0) rotate(-10deg); }
+  60% { transform: scale(1.3) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes stomping {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+@keyframes pointRight {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  50% { transform: rotate(-15deg) translateX(10px); }
 }
 
-.response-text {
-  font-size: 4.5rem;
-  color: white;
-  animation: bounce-text 0.4s ease;
-}
-
-/* SVG inline positioning */
-.svg-container {
+/* SVG Character Styles */
+.boy-character, .girl-character {
   position: absolute;
-  z-index: 5;
+  z-index: 50;
+}
+.boy-character.jumping { animation: jump 0.6s ease infinite; }
+.boy-character.dancing { animation: dance 0.8s ease infinite; }
+.boy-character.bouncing { animation: bounce 0.7s ease infinite; }
+.boy-character.waving .boy-arm-right { animation: wave 0.5s ease infinite; }
+.boy-character.stomping { animation: stomping 0.3s ease infinite; }
+
+.girl-character.jumping { animation: jump 0.6s ease infinite; }
+.girl-character.dancing { animation: dance 0.8s ease infinite; }
+.girl-character.bouncing { animation: bounce 0.7s ease infinite; }
+.girl-character.clapping { animation: clap 0.4s ease infinite; }
+.girl-character.stomping { animation: stomping 0.3s ease infinite; }
+
+.sun-character { animation: spin 20s linear infinite; }
+.bird-wing { animation: flap 0.4s ease infinite; transform-origin: center; }
+.star-character { animation: twinkle 1.5s ease infinite; }
+.frog-character { animation: frogJump 1s ease infinite; }
+
+.confetti-piece {
+  position: absolute;
+  width: 12px; height: 12px;
+  animation: confettiFall 3s linear forwards;
+  z-index: 100;
+}
+
+.number-char {
+  display: inline-block;
+  animation: numberPop 0.5s ease forwards;
+  position: relative;
 }
 </style>
 </head>
 <body>
-<div id="progress-bar"></div>
-<div id="stage">
-  <button id="play-btn" class="btn" onclick="startAnimation()">Play!</button>
-  <button id="replay-btn" class="btn" onclick="replay()">Play Again!</button>
+<div id="video-container">
+  <div id="progress-bar"></div>
+  
+  <!-- Play Button -->
+  <button id="play-btn" onclick="startVideo()">
+    <svg width="50" height="50" viewBox="0 0 50 50">
+      <polygon points="15,8 15,42 42,25" fill="white"/>
+    </svg>
+  </button>
+  
+  <!-- Replay Button -->
+  <button id="replay-btn" onclick="replayVideo()">
+    <svg width="50" height="50" viewBox="0 0 50 50">
+      <path d="M25 8 A17 17 0 1 1 8 25" stroke="white" stroke-width="4" fill="none"/>
+      <polygon points="8,17 8,33 16,25" fill="white"/>
+    </svg>
+  </button>
+
+  <!-- Scenes will be injected by JS -->
+  <div id="scenes-container"></div>
 </div>
 
 <script>
 // SVG Character Definitions
-const SVG = {
-  sun: (size = 120) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 120 120">
-      <g class="sun-character">
-        <g>
-          ${[0,45,90,135,180,225,270,315].map(a => 
-            `<rect x="56" y="2" width="8" height="20" rx="4" fill="#FFD93D" transform="rotate(${a} 60 60)"/>`
-          ).join('')}
-        </g>
-      </g>
-      <circle cx="60" cy="60" r="35" fill="#FFD93D"/>
-      <circle cx="60" cy="60" r="32" fill="#FFEB3B"/>
-      <circle cx="48" cy="52" r="5" fill="#333"/>
-      <circle cx="72" cy="52" r="5" fill="#333"/>
-      <circle cx="49" cy="50" r="2" fill="white"/>
-      <circle cx="73" cy="50" r="2" fill="white"/>
-      <path d="M 48 70 Q 60 82 72 70" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <circle cx="38" cy="65" r="5" fill="#FFB3B3" opacity="0.6"/>
-      <circle cx="82" cy="65" r="5" fill="#FFB3B3" opacity="0.6"/>
-    </svg>`,
+const SVG_BOY = (scale=1, id='') => `
+<svg width="${80*scale}" height="${130*scale}" viewBox="0 0 80 130" class="boy-svg" id="${id}">
+  <!-- Hair -->
+  <ellipse cx="40" cy="25" rx="22" ry="20" fill="#5D4037"/>
+  <rect x="20" y="10" width="40" height="15" rx="8" fill="#5D4037"/>
+  <!-- Head -->
+  <circle cx="40" cy="35" r="20" fill="#FFCC80"/>
+  <!-- Eyes -->
+  <circle cx="33" cy="32" r="4" fill="#333"/>
+  <circle cx="47" cy="32" r="4" fill="#333"/>
+  <circle cx="34" cy="30" r="1.5" fill="white"/>
+  <circle cx="48" cy="30" r="1.5" fill="white"/>
+  <!-- Smile -->
+  <path d="M32 42 Q40 50 48 42" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Cheeks -->
+  <circle cx="27" cy="40" r="4" fill="#FF8A80" opacity="0.5"/>
+  <circle cx="53" cy="40" r="4" fill="#FF8A80" opacity="0.5"/>
+  <!-- Body (T-shirt) -->
+  <rect x="25" y="55" width="30" height="35" rx="5" fill="#42A5F5"/>
+  <!-- Collar -->
+  <path d="M32 55 L40 62 L48 55" stroke="#1E88E5" stroke-width="2" fill="none"/>
+  <!-- Arms -->
+  <g class="boy-arm-left">
+    <rect x="12" y="58" width="13" height="8" rx="4" fill="#FFCC80"/>
+  </g>
+  <g class="boy-arm-right">
+    <rect x="55" y="58" width="13" height="8" rx="4" fill="#FFCC80"/>
+  </g>
+  <!-- Hands -->
+  <circle cx="12" cy="62" r="5" fill="#FFCC80"/>
+  <circle cx="68" cy="62" r="5" fill="#FFCC80"/>
+  <!-- Shorts -->
+  <rect x="27" y="88" width="12" height="18" rx="4" fill="#FFA726"/>
+  <rect x="41" y="88" width="12" height="18" rx="4" fill="#FFA726"/>
+  <!-- Legs -->
+  <rect x="29" y="105" width="8" height="15" rx="3" fill="#FFCC80"/>
+  <rect x="43" y="105" width="8" height="15" rx="3" fill="#FFCC80"/>
+  <!-- Shoes -->
+  <ellipse cx="33" cy="122" rx="7" ry="5" fill="#E53935"/>
+  <ellipse cx="47" cy="122" rx="7" ry="5" fill="#E53935"/>
+</svg>`;
 
-  bird: (size = 80, color = '#45B7D1') => `
-    <svg width="${size}" height="${size}" viewBox="0 0 80 80">
-      <ellipse cx="40" cy="45" rx="18" ry="15" fill="${color}"/>
-      <circle cx="40" cy="32" r="12" fill="${color}"/>
-      <circle cx="36" cy="30" r="3" fill="#333"/>
-      <circle cx="44" cy="30" r="3" fill="#333"/>
-      <circle cx="37" cy="29" r="1" fill="white"/>
-      <circle cx="45" cy="29" r="1" fill="white"/>
-      <polygon points="40,35 37,38 43,38" fill="#FF8C00"/>
-      <path class="bird-wing" d="M 22 42 Q 10 35 15 48 Q 20 52 25 45 Z" fill="${color}" opacity="0.8"/>
-      <path class="bird-wing" d="M 58 42 Q 70 35 65 48 Q 60 52 55 45 Z" fill="${color}" opacity="0.8" style="transform-origin: left center; animation-delay: 0.2s;"/>
-      <path d="M 35 37 Q 40 39 45 37" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    </svg>`,
+const SVG_GIRL = (scale=1, id='') => `
+<svg width="${80*scale}" height="${130*scale}" viewBox="0 0 80 130" class="girl-svg" id="${id}">
+  <!-- Hair -->
+  <ellipse cx="40" cy="30" rx="24" ry="22" fill="#6D4C41"/>
+  <!-- Pigtails -->
+  <circle cx="14" cy="28" r="8" fill="#6D4C41"/>
+  <circle cx="66" cy="28" r="8" fill="#6D4C41"/>
+  <!-- Hair ties -->
+  <circle cx="14" cy="20" r="4" fill="#FF4081"/>
+  <circle cx="66" cy="20" r="4" fill="#FF4081"/>
+  <!-- Head -->
+  <circle cx="40" cy="35" r="20" fill="#FFCC80"/>
+  <!-- Eyes -->
+  <circle cx="33" cy="32" r="4" fill="#333"/>
+  <circle cx="47" cy="32" r="4" fill="#333"/>
+  <circle cx="34" cy="30" r="1.5" fill="white"/>
+  <circle cx="48" cy="30" r="1.5" fill="white"/>
+  <!-- Eyelashes -->
+  <line x1="30" y1="28" x2="28" y2="26" stroke="#333" stroke-width="1.5"/>
+  <line x1="44" y1="28" x2="42" y2="26" stroke="#333" stroke-width="1.5"/>
+  <!-- Smile -->
+  <path d="M32 42 Q40 50 48 42" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Cheeks -->
+  <circle cx="27" cy="40" r="4" fill="#FF8A80" opacity="0.5"/>
+  <circle cx="53" cy="40" r="4" fill="#FF8A80" opacity="0.5"/>
+  <!-- Body (Dress) -->
+  <path d="M28 55 L22 95 L58 95 L52 55 Z" fill="#EC407A" rx="5"/>
+  <!-- Dress pattern -->
+  <circle cx="35" cy="72" r="3" fill="#F48FB1"/>
+  <circle cx="45" cy="78" r="3" fill="#F48FB1"/>
+  <circle cx="38" cy="85" r="3" fill="#F48FB1"/>
+  <!-- Arms -->
+  <g class="girl-arm-left">
+    <rect x="10" y="58" width="13" height="8" rx="4" fill="#FFCC80"/>
+  </g>
+  <g class="girl-arm-right">
+    <rect x="57" y="58" width="13" height="8" rx="4" fill="#FFCC80"/>
+  </g>
+  <!-- Hands -->
+  <circle cx="10" cy="62" r="5" fill="#FFCC80"/>
+  <circle cx="70" cy="62" r="5" fill="#FFCC80"/>
+  <!-- Legs -->
+  <rect x="30" y="95" width="8" height="18" rx="3" fill="#FFCC80"/>
+  <rect x="42" y="95" width="8" height="18" rx="3" fill="#FFCC80"/>
+  <!-- Shoes -->
+  <ellipse cx="34" cy="115" rx="7" ry="5" fill="#7B1FA2"/>
+  <ellipse cx="46" cy="115" rx="7" ry="5" fill="#7B1FA2"/>
+</svg>`;
 
-  star: (size = 80) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 80 80" class="star-character">
-      <polygon points="40,8 48,30 72,30 52,44 60,68 40,54 20,68 28,44 8,30 32,30" fill="#FFD93D" stroke="#FFC107" stroke-width="2"/>
-      <circle cx="34" cy="35" r="3" fill="#333"/>
-      <circle cx="46" cy="35" r="3" fill="#333"/>
-      <circle cx="35" cy="34" r="1" fill="white"/>
-      <circle cx="47" cy="34" r="1" fill="white"/>
-      <path d="M 35 44 Q 40 50 45 44" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
-    </svg>`,
+const SVG_SUN = `
+<svg width="120" height="120" viewBox="0 0 120 120" class="sun-character">
+  <!-- Rays -->
+  <g class="sun-rays">
+    ${[0,30,60,90,120,150,180,210,240,270,300,330].map(a => 
+      `<rect x="57" y="5" width="6" height="20" rx="3" fill="#FFD54F" transform="rotate(${a} 60 60)"/>`
+    ).join('')}
+  </g>
+  <!-- Face -->
+  <circle cx="60" cy="60" r="35" fill="#FFEB3B"/>
+  <circle cx="60" cy="60" r="32" fill="#FFC107"/>
+  <!-- Eyes -->
+  <circle cx="50" cy="55" r="4" fill="#333"/>
+  <circle cx="70" cy="55" r="4" fill="#333"/>
+  <circle cx="51" cy="53" r="1.5" fill="white"/>
+  <circle cx="71" cy="53" r="1.5" fill="white"/>
+  <!-- Smile -->
+  <path d="M48 68 Q60 78 72 68" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Cheeks -->
+  <circle cx="43" cy="65" r="4" fill="#FF8A80" opacity="0.4"/>
+  <circle cx="77" cy="65" r="4" fill="#FF8A80" opacity="0.4"/>
+</svg>`;
 
-  frog: (size = 100) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 100 100" class="frog-character">
-      <ellipse cx="50" cy="65" rx="30" ry="25" fill="#4CAF50"/>
-      <circle cx="35" cy="40" r="14" fill="#4CAF50"/>
-      <circle cx="65" cy="40" r="14" fill="#4CAF50"/>
-      <circle cx="35" cy="38" r="10" fill="white"/>
-      <circle cx="65" cy="38" r="10" fill="white"/>
-      <circle cx="35" cy="38" r="6" fill="#333"/>
-      <circle cx="65" cy="38" r="6" fill="#333"/>
-      <circle cx="37" cy="36" r="2" fill="white"/>
-      <circle cx="67" cy="36" r="2" fill="white"/>
-      <path d="M 38 72 Q 50 82 62 72" stroke="#2E7D32" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <ellipse cx="30" cy="85" rx="10" ry="5" fill="#388E3C"/>
-      <ellipse cx="70" cy="85" rx="10" ry="5" fill="#388E3C"/>
-      <circle cx="30" cy="60" r="4" fill="#FFB3B3" opacity="0.5"/>
-      <circle cx="70" cy="60" r="4" fill="#FFB3B3" opacity="0.5"/>
-    </svg>`,
+const SVG_BIRD = (color='#42A5F5', x=0, y=0, delay=0) => `
+<svg width="60" height="40" viewBox="0 0 60 40" style="position:absolute;left:${x}px;top:${y}px;">
+  <!-- Body -->
+  <ellipse cx="30" cy="25" rx="15" ry="10" fill="${color}"/>
+  <!-- Head -->
+  <circle cx="42" cy="18" r="8" fill="${color}"/>
+  <!-- Eye -->
+  <circle cx="44" cy="16" r="3" fill="white"/>
+  <circle cx="45" cy="16" r="1.5" fill="#333"/>
+  <!-- Beak -->
+  <polygon points="50,18 56,20 50,22" fill="#FFA726"/>
+  <!-- Wing -->
+  <ellipse cx="25" cy="20" rx="10" ry="6" fill="${color === '#42A5F5' ? '#1E88E5' : '#E64A19'}" 
+    class="bird-wing" style="animation-delay:${delay}s"/>
+  <!-- Tail -->
+  <polygon points="15,22 8,18 8,28" fill="${color === '#42A5F5' ? '#1565C0' : '#BF360C'}"/>
+</svg>`;
 
-  narrator: (size = 150) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 150 150" class="narrator-character">
-      <circle cx="75" cy="80" r="50" fill="#FF8A65"/>
-      <circle cx="75" cy="80" r="46" fill="#FFAB91"/>
-      <circle cx="60" cy="72" r="7" fill="#333"/>
-      <circle cx="90" cy="72" r="7" fill="#333"/>
-      <circle cx="62" cy="70" r="3" fill="white"/>
-      <circle cx="92" cy="70" r="3" fill="white"/>
-      <path d="M 60 95 Q 75 110 90 95" stroke="#333" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <circle cx="45" cy="88" r="6" fill="#FF6B6B" opacity="0.5"/>
-      <circle cx="105" cy="88" r="6" fill="#FF6B6B" opacity="0.5"/>
-      <ellipse cx="75" cy="25" rx="25" ry="12" fill="#FF6B6B" rx="5"/>
-      <rect x="60" y="20" width="30" height="18" rx="9" fill="#FF6B6B"/>
-      <circle cx="68" cy="28" r="3" fill="#FF8A80"/>
-      <circle cx="82" cy="28" r="3" fill="#FF8A80"/>
-    </svg>`,
+const SVG_STAR = (size=50) => `
+<svg width="${size}" height="${size}" viewBox="0 0 50 50" class="star-character">
+  <polygon points="25,2 31,18 49,18 35,28 39,46 25,36 11,46 15,28 1,18 19,18" fill="#FFD54F" stroke="#FFC107" stroke-width="1"/>
+  <!-- Face -->
+  <circle cx="20" cy="24" r="2" fill="#333"/>
+  <circle cx="30" cy="24" r="2" fill="#333"/>
+  <path d="M21 30 Q25 34 29 30" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>`;
 
-  hands: (size = 200) => `
-    <svg width="${size}" height="${size * 0.6}" viewBox="0 0 200 120">
-      <g class="hand-left">
-        <path d="M 30 80 Q 20 70 25 55 L 30 40 Q 32 35 35 40 L 38 55 L 40 35 Q 42 30 45 35 L 47 55 L 48 32 Q 50 27 53 32 L 54 55 L 55 38 Q 57 33 60 38 L 58 60 Q 56 80 45 85 Z" fill="#FFCC80" stroke="#FF9800" stroke-width="1.5"/>
-      </g>
-      <g class="hand-right">
-        <path d="M 170 80 Q 180 70 175 55 L 170 40 Q 168 35 165 40 L 162 55 L 160 35 Q 158 30 155 35 L 153 55 L 152 32 Q 150 27 147 32 L 146 55 L 145 38 Q 143 33 140 38 L 142 60 Q 144 80 155 85 Z" fill="#FFCC80" stroke="#FF9800" stroke-width="1.5"/>
-      </g>
-      <g opacity="0.8">
-        ${[0,1,2,3,4,5].map(i => {
-          const x = 80 + Math.cos(i * 1.05) * 30;
-          const y = 50 + Math.sin(i * 1.05) * 20;
-          return `<circle cx="${x}" cy="${y}" r="4" fill="${['#FF6B6B','#FFE66D','#4ECDC4','#45B7D1','#96E6A1','#FF8E53'][i]}" opacity="0.8"/>`;
-        }).join('')}
-      </g>
-    </svg>`,
+const SVG_FROG = (x=0, y=0, delay=0) => `
+<svg width="60" height="50" viewBox="0 0 60 50" class="frog-character" style="position:absolute;left:${x}px;top:${y}px;animation-delay:${delay}s">
+  <!-- Body -->
+  <ellipse cx="30" cy="35" rx="18" ry="14" fill="#66BB6A"/>
+  <!-- Head -->
+  <ellipse cx="30" cy="22" rx="16" ry="12" fill="#81C784"/>
+  <!-- Eyes (big bulging) -->
+  <circle cx="22" cy="14" r="8" fill="#A5D6A7"/>
+  <circle cx="38" cy="14" r="8" fill="#A5D6A7"/>
+  <circle cx="22" cy="14" r="5" fill="white"/>
+  <circle cx="38" cy="14" r="5" fill="white"/>
+  <circle cx="23" cy="13" r="3" fill="#333"/>
+  <circle cx="39" cy="13" r="3" fill="#333"/>
+  <!-- Smile -->
+  <path d="M20 28 Q30 35 40 28" stroke="#2E7D32" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Legs -->
+  <ellipse cx="14" cy="44" rx="8" ry="5" fill="#4CAF50"/>
+  <ellipse cx="46" cy="44" rx="8" ry="5" fill="#4CAF50"/>
+</svg>`;
 
-  numberFace: (num, color = '#FF6B6B', size = 120) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="55" fill="${color}" opacity="0.2"/>
-      <text x="60" y="78" text-anchor="middle" font-family="Fredoka One" font-size="70" fill="${color}">${num}</text>
-      <circle cx="45" cy="35" r="4" fill="#333"/>
-      <circle cx="75" cy="35" r="4" fill="#333"/>
-      <circle cx="46" cy="34" r="1.5" fill="white"/>
-      <circle cx="76" cy="34" r="1.5" fill="white"/>
-    </svg>`
-};
+const SVG_CLAPPING_HANDS = `
+<svg width="100" height="80" viewBox="0 0 100 80">
+  <!-- Left Hand -->
+  <g class="clap-left" style="animation: clap 0.4s ease infinite;">
+    <path d="M20 40 Q15 30 25 25 Q30 20 35 28 L40 40 Q35 50 25 48 Q18 46 20 40Z" fill="#FFCC80" stroke="#E6B56C" stroke-width="1"/>
+    <line x1="28" y1="30" x2="30" y2="38" stroke="#E6B56C" stroke-width="1"/>
+    <line x1="32" y1="28" x2="33" y2="37" stroke="#E6B56C" stroke-width="1"/>
+  </g>
+  <!-- Right Hand -->
+  <g class="clap-right" style="animation: clap 0.4s ease infinite; animation-delay: 0.05s;">
+    <path d="M80 40 Q85 30 75 25 Q70 20 65 28 L60 40 Q65 50 75 48 Q82 46 80 40Z" fill="#FFCC80" stroke="#E6B56C" stroke-width="1"/>
+    <line x1="72" y1="30" x2="70" y2="38" stroke="#E6B56C" stroke-width="1"/>
+    <line x1="68" y1="28" x2="67" y2="37" stroke="#E6B56C" stroke-width="1"/>
+  </g>
+  <!-- Clap sparkles -->
+  <circle cx="50" cy="35" r="3" fill="#FFD54F" opacity="0.8"/>
+  <circle cx="45" cy="28" r="2" fill="#FF8A65" opacity="0.6"/>
+  <circle cx="55" cy="28" r="2" fill="#FF8A65" opacity="0.6"/>
+</svg>`;
 
-// Color themes for backgrounds
-const themes = [
-  'linear-gradient(135deg, #FFE66D, #FF6B6B)',
-  'linear-gradient(135deg, #4ECDC4, #45B7D1)',
-  'linear-gradient(135deg, #96E6A1, #4ECDC4)',
-  'linear-gradient(135deg, #FF8E53, #FF6B6B)',
-  'linear-gradient(135deg, #A8E6CF, #DCEDC1)',
-  'linear-gradient(135deg, #FFD93D, #FF6B6B)',
-  'linear-gradient(135deg, #45B7D1, #96E6A1)',
-  'linear-gradient(135deg, #FF6B6B, #C44569)',
-  'linear-gradient(135deg, #DCEDC1, #FFE66D)',
-  'linear-gradient(135deg, #4ECDC4, #2C3E50)',
-  'linear-gradient(135deg, #FFB3B3, #FF6B6B)',
-  'linear-gradient(135deg, #96E6A1, #45B7D1)',
-];
+function createNumberWithEyes(num, color) {
+  return `<span class="number-char" style="color:${color};position:relative;display:inline-block;margin:0 5px;">
+    ${num}
+    <svg width="30" height="15" viewBox="0 0 30 15" style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);">
+      <circle cx="10" cy="8" r="4" fill="white" stroke="#333" stroke-width="1"/>
+      <circle cx="20" cy="8" r="4" fill="white" stroke="#333" stroke-width="1"/>
+      <circle cx="11" cy="8" r="2" fill="#333"/>
+      <circle cx="21" cy="8" r="2" fill="#333"/>
+    </svg>
+  </span>`;
+}
 
-const numberColors = ['#FF6B6B','#FF8E53','#FFE66D','#4ECDC4','#45B7D1','#96E6A1','#C44569','#6C5CE7','#A8E6CF','#FF6B6B'];
+function createConfetti(count=30) {
+  const colors = ['#FF6B6B','#FFD93D','#6BCF7F','#4ECDC4','#A855F7','#FF8E53','#42A5F5','#EC407A'];
+  const shapes = ['circle','square','triangle','diamond'];
+  let html = '';
+  for(let i=0; i<count; i++){
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const shape = shapes[Math.floor(Math.random()*shapes.length)];
+    const left = Math.random()*100;
+    const delay = Math.random()*2;
+    const size = 8 + Math.random()*10;
+    let shapeStyle = '';
+    if(shape==='circle') shapeStyle = `border-radius:50%;`;
+    else if(shape==='triangle') shapeStyle = `width:0;height:0;border-left:${size/2}px solid transparent;border-right:${size/2}px solid transparent;border-bottom:${size}px solid ${color};background:none;`;
+    else if(shape==='diamond') shapeStyle = `transform:rotate(45deg);`;
+    html += `<div class="confetti-piece" style="left:${left}%;animation-delay:${delay}s;width:${size}px;height:${size}px;background:${shape==='triangle'?'none':color};${shapeStyle}"></div>`;
+  }
+  return html;
+}
 
-let currentScene = -1;
-let animationTimer = null;
-let totalScenes = 0;
-let isPlaying = false;
-
-// Scene definitions: { duration (ms), bg (index), content (html), transition }
+// Scene definitions
 const scenes = [
-  // INTRO
-  { duration: 3000, bg: 0, transition: 'zoom-in', content: () => `
-    <div class="svg-container" style="top:10%;left:50%;transform:translateX(-50%);">${SVG.narrator(150)}</div>
-    <div class="song-text large" style="margin-top: 80px;">Hey, hey!<br>Are you ready?</div>
-  `},
-  { duration: 3000, bg: 1, transition: 'slide-left', content: () => `
-    <div class="song-text large">Let's count together!</div>
-    <div class="svg-container" style="bottom:15%;left:20%;">${SVG.star(60)}</div>
-    <div class="svg-container" style="bottom:20%;right:20%;">${SVG.star(50)}</div>
-  `},
-  { duration: 3500, bg: 2, transition: 'spin-in', content: () => `
-    <div class="song-text">Clap your hands and<br>stomp your feet--</div>
-    <div style="margin-top:20px;">${SVG.hands(220)}</div>
-  `},
-  { duration: 3000, bg: 3, transition: 'slide-up', content: () => `
-    <div class="song-text large">Counting numbers<br>is so sweet!</div>
-    <div class="svg-container" style="top:10%;right:10%;">${SVG.sun(100)}</div>
-  `},
-  // VERSE 1
-  { duration: 2500, bg: 4, transition: 'zoom-in', content: () => `
-    <div style="display:flex;gap:20px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(1, numberColors[0], 110)}
-      ${SVG.numberFace(2, numberColors[1], 110)}
-      ${SVG.numberFace(3, numberColors[2], 110)}
-    </div>
-    <div class="song-text" style="margin-top:20px;">One, two, three,<br>Come count with me!</div>
-  `},
-  { duration: 2500, bg: 5, transition: 'slide-left', content: () => `
-    <div style="display:flex;gap:20px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(4, numberColors[3], 110)}
-      ${SVG.numberFace(5, numberColors[4], 110)}
-      ${SVG.numberFace(6, numberColors[5], 110)}
-    </div>
-    <div class="song-text" style="margin-top:20px;">Four, five, six,<br>Do your counting tricks!</div>
-  `},
-  { duration: 2500, bg: 6, transition: 'slide-up', content: () => `
-    <div style="display:flex;gap:20px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(7, numberColors[6], 110)}
-      ${SVG.numberFace(8, numberColors[7], 110)}
-      ${SVG.numberFace(9, numberColors[8], 110)}
-    </div>
-    <div class="song-text" style="margin-top:20px;">Seven, eight, nine,<br>We're doing just fine!</div>
-  `},
-  { duration: 2500, bg: 7, transition: 'spin-in', content: () => `
-    <div style="display:flex;gap:10px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(10, '#FF6B6B', 130)}
-      ${SVG.numberFace(10, '#FFE66D', 130)}
-      ${SVG.numberFace(10, '#4ECDC4', 130)}
-    </div>
-    <div class="song-text large" style="margin-top:10px;">Ten! Ten! Ten!<br>Let's count again!</div>
-  `},
-  // CHORUS
-  { duration: 2500, bg: 8, transition: 'zoom-in', content: () => `
-    <div class="song-text large" style="color:#FF6B6B;">1, 2, 3</div>
-    <div class="song-text">jump with me!</div>
-    <div class="svg-container" style="bottom:10%;left:30%;">${SVG.frog(90)}</div>
-    <div class="svg-container" style="bottom:12%;right:30%;">${SVG.frog(80)}</div>
-  `},
-  { duration: 2500, bg: 9, transition: 'slide-left', content: () => `
-    <div class="song-text large" style="color:#FFE66D;">4, 5, 6</div>
-    <div class="song-text">do some kicks!</div>
-    <div class="svg-container" style="top:10%;left:15%;">${SVG.star(55)}</div>
-    <div class="svg-container" style="top:12%;right:15%;">${SVG.star(50)}</div>
-  `},
-  { duration: 2500, bg: 10, transition: 'slide-up', content: () => `
-    <div class="song-text large" style="color:#96E6A1;">7, 8, 9</div>
-    <div class="song-text">feeling fine!</div>
-    <div class="svg-container" style="bottom:15%;left:20%;">${SVG.bird(70, '#45B7D1')}</div>
-    <div class="svg-container" style="bottom:18%;right:20%;">${SVG.bird(65, '#FF8E53')}</div>
-  `},
-  { duration: 2500, bg: 11, transition: 'spin-in', content: () => `
-    <div class="song-text huge" style="color:#FFE66D;">10! 10! 10!</div>
-    <div class="song-text">let's do it again!</div>
-  `},
-  // Chorus continued
-  { duration: 3000, bg: 0, transition: 'zoom-in', content: () => `
-    <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
-      ${[1,2,3,4,5].map(n => SVG.numberFace(n, numberColors[n-1], 80)).join('')}
-    </div>
-    <div class="song-text" style="margin-top:15px;">One, two, three, four, five!</div>
-  `},
-  { duration: 3000, bg: 1, transition: 'slide-left', content: () => `
-    <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
-      ${[6,7,8,9,10].map(n => SVG.numberFace(n, numberColors[n-1], 80)).join('')}
-    </div>
-    <div class="song-text" style="margin-top:15px;">Six, seven, eight, nine, ten!</div>
-  `},
-  { duration: 3000, bg: 2, transition: 'slide-up', content: () => `
-    <div class="song-text large">Count it loud,<br>count it proud!</div>
-    <div class="svg-container" style="top:8%;left:10%;">${SVG.star(50)}</div>
-    <div class="svg-container" style="top:10%;right:10%;">${SVG.star(45)}</div>
-    <div class="svg-container" style="bottom:10%;left:50%;transform:translateX(-50%);">${SVG.narrator(100)}</div>
-  `},
-  { duration: 3000, bg: 3, transition: 'spin-in', content: () => `
-    <div class="song-text large">Numbers make us<br>happy now!</div>
-    <div class="svg-container" style="top:5%;left:50%;transform:translateX(-50%);">${SVG.sun(110)}</div>
-  `},
-  // VERSE 2
-  { duration: 3000, bg: 4, transition: 'zoom-in', content: () => `
-    <div style="margin-bottom:15px;">${SVG.sun(140)}</div>
-    <div class="song-text">One little sun<br>Shining in the sky!</div>
-  `},
-  { duration: 3000, bg: 5, transition: 'slide-left', content: () => `
-    <div style="display:flex;gap:30px;margin-bottom:15px;">
-      ${SVG.bird(90, '#45B7D1')}
-      ${SVG.bird(85, '#FF8E53')}
-    </div>
-    <div class="song-text">Two little birds<br>Flying way up high!</div>
-  `},
-  { duration: 3000, bg: 6, transition: 'slide-up', content: () => `
-    <div style="display:flex;gap:20px;margin-bottom:15px;">
-      ${SVG.star(75)}${SVG.star(70)}${SVG.star(65)}
-    </div>
-    <div class="song-text">Three little stars<br>Twinkling bright!</div>
-  `},
-  { duration: 3000, bg: 7, transition: 'spin-in', content: () => `
-    <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;justify-content:center;">
-      ${SVG.frog(85)}${SVG.frog(80)}${SVG.frog(85)}${SVG.frog(80)}
-    </div>
-    <div class="song-text">Four little frogs<br>Jumping left and right!</div>
-  `},
-  // CHORUS 2
-  { duration: 2200, bg: 8, transition: 'zoom-in', content: () => `
-    <div class="song-text large" style="color:#FF6B6B;">1, 2, 3</div>
-    <div class="song-text">jump with me!</div>
-    <div class="svg-container" style="bottom:8%;left:25%;">${SVG.frog(75)}</div>
-    <div class="svg-container" style="bottom:10%;right:25%;">${SVG.frog(70)}</div>
-  `},
-  { duration: 2200, bg: 9, transition: 'slide-left', content: () => `
-    <div class="song-text large" style="color:#FFE66D;">4, 5, 6</div>
-    <div class="song-text">do some kicks!</div>
-  `},
-  { duration: 2200, bg: 10, transition: 'slide-up', content: () => `
-    <div class="song-text large" style="color:#96E6A1;">7, 8, 9</div>
-    <div class="song-text">feeling fine!</div>
-  `},
-  { duration: 2200, bg: 11, transition: 'spin-in', content: () => `
-    <div class="song-text huge" style="color:#FFE66D;">10! 10! 10!</div>
-    <div class="song-text">let's do it again!</div>
-  `},
-  // CALL & RESPONSE
-  { duration: 2000, bg: 0, transition: 'zoom-in', content: () => `
-    <div class="svg-container" style="top:5%;left:50%;transform:translateX(-50%);">${SVG.narrator(120)}</div>
-    <div class="song-text" style="margin-top:100px;color:#FFE66D;">One!</div>
-    <div class="song-text response-text" style="margin-top:10px;">ONE!</div>
-    ${SVG.hands(180)}
-  `},
-  { duration: 2000, bg: 1, transition: 'slide-left', content: () => `
-    <div class="song-text" style="color:#FFE66D;">Two!</div>
-    <div class="song-text response-text" style="margin-top:10px;">TWO!</div>
-    ${SVG.hands(180)}
-  `},
-  { duration: 2000, bg: 2, transition: 'slide-up', content: () => `
-    <div class="song-text" style="color:#FFE66D;">Three!</div>
-    <div class="song-text response-text" style="margin-top:10px;">THREE!</div>
-    ${SVG.hands(180)}
-  `},
-  { duration: 2500, bg: 3, transition: 'spin-in', content: () => `
-    <div class="song-text" style="color:#FFE66D;">Four! Five! Six!</div>
-    <div class="song-text response-text" style="margin-top:10px;">FOUR! FIVE! SIX!</div>
-    <div style="display:flex;gap:10px;margin-top:10px;">
-      ${SVG.numberFace(4, numberColors[3], 70)}
-      ${SVG.numberFace(5, numberColors[4], 70)}
-      ${SVG.numberFace(6, numberColors[5], 70)}
-    </div>
-  `},
-  { duration: 2500, bg: 4, transition: 'zoom-in', content: () => `
-    <div class="song-text" style="color:#FFE66D;">Seven! Eight! Nine!</div>
-    <div class="song-text response-text" style="margin-top:10px;">SEVEN! EIGHT! NINE!</div>
-    <div style="display:flex;gap:10px;margin-top:10px;">
-      ${SVG.numberFace(7, numberColors[6], 70)}
-      ${SVG.numberFace(8, numberColors[7], 70)}
-      ${SVG.numberFace(9, numberColors[8], 70)}
-    </div>
-  `},
-  { duration: 2500, bg: 5, transition: 'spin-in', content: () => `
-    <div class="song-text" style="color:#FFE66D;">And what comes next?</div>
-    <div class="song-text huge response-text" style="margin-top:10px;color:white;">TEN!</div>
-    ${SVG.numberFace(10, '#FF6B6B', 100)}
-  `},
-  // FINAL CHORUS
-  { duration: 2500, bg: 6, transition: 'zoom-in', content: () => `
-    <div class="song-text large" style="color:#FF6B6B;">1, 2, 3</div>
-    <div class="song-text">jump, jump, jump!</div>
-    <div class="svg-container" style="bottom:10%;left:20%;">${SVG.frog(70)}</div>
-    <div class="svg-container" style="bottom:12%;left:45%;">${SVG.frog(65)}</div>
-    <div class="svg-container" style="bottom:10%;right:20%;">${SVG.frog(70)}</div>
-  `},
-  { duration: 2500, bg: 7, transition: 'slide-left', content: () => `
-    <div class="song-text large" style="color:#FFE66D;">4, 5, 6</div>
-    <div class="song-text">stomp, stomp, stomp!</div>
-  `},
-  { duration: 2500, bg: 8, transition: 'slide-up', content: () => `
-    <div class="song-text large" style="color:#96E6A1;">7, 8, 9</div>
-    <div class="song-text">clap in time!</div>
-    ${SVG.hands(200)}
-  `},
-  { duration: 3000, bg: 9, transition: 'spin-in', content: () => `
-    <div class="song-text huge" style="color:#FFE66D;">10! 10! 10!</div>
-    <div class="song-text large" style="color:white;">WE DID IT!</div>
-  `},
-  // Final chorus continued
-  { duration: 3000, bg: 10, transition: 'zoom-in', content: () => `
-    <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;">
-      ${[1,2,3,4,5].map(n => SVG.numberFace(n, numberColors[n-1], 70)).join('')}
-    </div>
-    <div class="song-text" style="margin-top:10px;">One, two, three, four, five!</div>
-  `},
-  { duration: 3000, bg: 11, transition: 'slide-left', content: () => `
-    <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;">
-      ${[6,7,8,9,10].map(n => SVG.numberFace(n, numberColors[n-1], 70)).join('')}
-    </div>
-    <div class="song-text" style="margin-top:10px;">Six, seven, eight, nine, ten!</div>
-  `},
-  { duration: 3000, bg: 0, transition: 'slide-up', content: () => `
-    <div class="song-text large">Numbers are our friends!</div>
-    <div class="svg-container" style="bottom:10%;left:20%;">${SVG.star(55)}</div>
-    <div class="svg-container" style="bottom:12%;right:20%;">${SVG.star(50)}</div>
-    <div class="svg-container" style="top:8%;left:50%;transform:translateX(-50%);">${SVG.sun(90)}</div>
-  `},
-  { duration: 2500, bg: 1, transition: 'spin-in', content: () => `
-    <div class="song-text large">So let's count again!</div>
-    <div class="svg-container" style="bottom:10%;left:50%;transform:translateX(-50%);">${SVG.narrator(110)}</div>
-  `},
-  // OUTRO
-  { duration: 2000, bg: 2, transition: 'zoom-in', content: () => `
-    <div style="display:flex;gap:15px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(1, numberColors[0], 90)}
-      ${SVG.numberFace(2, numberColors[1], 90)}
-      ${SVG.numberFace(3, numberColors[2], 90)}
-    </div>
-    <div class="song-text" style="margin-top:10px;">One... two... three...</div>
-  `},
-  { duration: 2000, bg: 3, transition: 'slide-left', content: () => `
-    <div style="display:flex;gap:15px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(4, numberColors[3], 90)}
-      ${SVG.numberFace(5, numberColors[4], 90)}
-      ${SVG.numberFace(6, numberColors[5], 90)}
-    </div>
-    <div class="song-text" style="margin-top:10px;">Four... five... six...</div>
-  `},
-  { duration: 2000, bg: 4, transition: 'slide-up', content: () => `
-    <div style="display:flex;gap:15px;align-items:center;justify-content:center;">
-      ${SVG.numberFace(7, numberColors[6], 90)}
-      ${SVG.numberFace(8, numberColors[7], 90)}
-      ${SVG.numberFace(9, numberColors[8], 90)}
-    </div>
-    <div class="song-text" style="margin-top:10px;">Seven... eight... nine...</div>
-  `},
-  { duration: 3000, bg: 5, transition: 'spin-in', content: () => `
-    <div class="song-text huge" style="color:#FF6B6B;">TEN!</div>
-    ${SVG.numberFace(10, '#FF6B6B', 140)}
-  `},
-  // ENDING
-  { duration: 4000, bg: 6, transition: 'zoom-in', content: () => `
-    <div class="svg-container" style="top:10%;left:50%;transform:translateX(-50%);">${SVG.narrator(130)}</div>
-    <div class="song-text large" style="margin-top:100px;color:white;">"Great counting,<br>everyone!"</div>
-    <div class="svg-container" style="bottom:10%;left:15%;">${SVG.star(50)}</div>
-    <div class="svg-container" style="bottom:12%;right:15%;">${SVG.star(45)}</div>
-    <div class="svg-container" style="top:15%;left:10%;">${SVG.bird(55, '#45B7D1')}</div>
-    <div class="svg-container" style="top:15%;right:10%;">${SVG.bird(50, '#FF8E53')}</div>
-  `},
+  // INTRO (0-12s)
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    content: () => `
+      <div class="scene-text large" style="animation:bounce 0.7s ease infinite;">Hey, hey! Are you ready?</div>
+      <div class="boy-character waving" style="bottom:10%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character dancing" style="bottom:10%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    content: () => `
+      <div class="scene-text large">Let's count together!</div>
+      <div class="boy-character jumping" style="bottom:10%;left:20%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:10%;right:20%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    content: () => `
+      <div class="scene-text">Clap your hands and stomp your feet--</div>
+      <div style="margin-top:20px;">${SVG_CLAPPING_HANDS}</div>
+      <div class="boy-character stomping" style="bottom:5%;left:10%;">${SVG_BOY(1)}</div>
+      <div class="girl-character clapping" style="bottom:5%;right:10%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    content: () => `
+      <div class="scene-text large">Counting numbers is so sweet!</div>
+      <div class="boy-character dancing" style="bottom:10%;left:25%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character dancing" style="bottom:10%;right:25%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(15)}
+    `
+  },
+  // VERSE 1 (12-24s)
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('1','#FF6B6B')} ${createNumberWithEyes('2','#FFD93D')} ${createNumberWithEyes('3','#6BCF7F')}</div>
+      <div class="scene-text">One, two, three,<br>Come count with me!</div>
+      <div class="boy-character bouncing" style="bottom:5%;left:10%;">${SVG_BOY(1)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:10%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#4ECDC4')} ${createNumberWithEyes('5','#A855F7')} ${createNumberWithEyes('6','#FF8E53')}</div>
+      <div class="scene-text">Four, five, six,<br>Do your counting tricks!</div>
+      <div class="boy-character dancing" style="bottom:5%;left:10%;">${SVG_BOY(1)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:10%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#42A5F5')} ${createNumberWithEyes('8','#EC407A')} ${createNumberWithEyes('9','#FF6B6B')}</div>
+      <div class="scene-text">Seven, eight, nine,<br>We're doing just fine!</div>
+      <div class="boy-character waving" style="bottom:5%;left:10%;">${SVG_BOY(1)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:10%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+    content: () => `
+      <div class="number-display" style="animation:bounce 0.4s ease infinite;">${createNumberWithEyes('10','#FF1744')}</div>
+      <div class="scene-text large">Ten! Ten! Ten!<br>Let's count again!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(20)}
+    `
+  },
+  // CHORUS (24-40s)
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('1','#FF6B6B')} ${createNumberWithEyes('2','#FFD93D')} ${createNumberWithEyes('3','#6BCF7F')}</div>
+      <div class="scene-text">jump with me!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#4ECDC4')} ${createNumberWithEyes('5','#A855F7')} ${createNumberWithEyes('6','#FF8E53')}</div>
+      <div class="scene-text">do some kicks!</div>
+      <div class="boy-character dancing" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#42A5F5')} ${createNumberWithEyes('8','#EC407A')} ${createNumberWithEyes('9','#FFD93D')}</div>
+      <div class="scene-text">feeling fine!</div>
+      <div class="boy-character waving" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    content: () => `
+      <div class="number-display" style="animation:bounce 0.3s ease infinite;">${createNumberWithEyes('10!','#FF1744')}</div>
+      <div class="scene-text large">let's do it again!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(20)}
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    content: () => `
+      <div class="scene-text">One, two, three, four, five!<br>Six, seven, eight, nine, ten!</div>
+      <div class="number-display" style="font-size:clamp(2rem,6vw,5rem);">
+        ${[1,2,3,4,5,6,7,8,9,10].map((n,i) => createNumberWithEyes(n, ['#FF6B6B','#FFD93D','#6BCF7F','#4ECDC4','#A855F7','#FF8E53','#42A5F5','#EC407A','#66BB6A','#FF1744'][i])).join(' ')}
+      </div>
+      <div class="boy-character dancing" style="bottom:2%;left:5%;">${SVG_BOY(0.9)}</div>
+      <div class="girl-character dancing" style="bottom:2%;right:5%;">${SVG_GIRL(0.9)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    content: () => `
+      <div class="scene-text large">Count it loud, count it proud,<br>Numbers make us happy now!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:20%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:20%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(25)}
+    `
+  },
+  // VERSE 2 (40-56s)
+  {
+    duration: 4000,
+    bg: 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)',
+    content: () => `
+      <div class="scene-text" style="color:#333;">One little sun<br>Shining in the sky</div>
+      <div style="margin:20px auto;">${SVG_SUN}</div>
+      <div class="number-display" style="color:#FF6B6B;">${createNumberWithEyes('1','#FF6B6B')}</div>
+      <div class="boy-character waving" style="bottom:5%;left:10%;">${SVG_BOY(0.9)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:10%;">${SVG_GIRL(0.9)}</div>
+    `
+  },
+  {
+    duration: 4000,
+    bg: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+    content: () => `
+      <div class="scene-text">Two little birds<br>Flying way up high!</div>
+      <div class="number-display">${createNumberWithEyes('2','#FFD93D')}</div>
+      <div style="position:relative;width:300px;height:100px;">
+        ${SVG_BIRD('#42A5F5', 30, 10, 0)}
+        ${SVG_BIRD('#FF7043', 180, 30, 0.2)}
+      </div>
+      <div class="boy-character bouncing" style="bottom:5%;left:10%;">${SVG_BOY(0.9)}</div>
+      <div class="girl-character waving" style="bottom:5%;right:10%;">${SVG_GIRL(0.9)}</div>
+    `
+  },
+  {
+    duration: 4000,
+    bg: 'linear-gradient(135deg, #2c3e50 0%, #4a69bd 100%)',
+    content: () => `
+      <div class="scene-text">Three little stars<br>Twinkling bright</div>
+      <div class="number-display">${createNumberWithEyes('3','#FFD54F')}</div>
+      <div style="display:flex;gap:30px;margin:20px;">
+        ${SVG_STAR(60)}${SVG_STAR(50)}${SVG_STAR(55)}
+      </div>
+      <div class="boy-character dancing" style="bottom:5%;left:10%;">${SVG_BOY(0.9)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:10%;">${SVG_GIRL(0.9)}</div>
+    `
+  },
+  {
+    duration: 4000,
+    bg: 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)',
+    content: () => `
+      <div class="scene-text" style="color:#1B5E20;">Four little frogs<br>Jumping left and right!</div>
+      <div class="number-display">${createNumberWithEyes('4','#2E7D32')}</div>
+      <div style="position:relative;width:350px;height:80px;">
+        ${SVG_FROG(0, 10, 0)}
+        ${SVG_FROG(80, 20, 0.2)}
+        ${SVG_FROG(160, 10, 0.4)}
+        ${SVG_FROG(240, 20, 0.6)}
+      </div>
+      <div class="boy-character jumping" style="bottom:3%;left:5%;">${SVG_BOY(0.8)}</div>
+      <div class="girl-character jumping" style="bottom:3%;right:5%;">${SVG_GIRL(0.8)}</div>
+    `
+  },
+  // CHORUS 2 (56-66s)
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('1','#FF6B6B')} ${createNumberWithEyes('2','#FFD93D')} ${createNumberWithEyes('3','#6BCF7F')}</div>
+      <div class="scene-text large">jump with me!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#4ECDC4')} ${createNumberWithEyes('5','#A855F7')} ${createNumberWithEyes('6','#FF8E53')}</div>
+      <div class="scene-text large">do some kicks!</div>
+      <div class="boy-character dancing" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#42A5F5')} ${createNumberWithEyes('8','#EC407A')} ${createNumberWithEyes('9','#FFD93D')}</div>
+      <div class="scene-text large">feeling fine!</div>
+      <div class="boy-character waving" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    content: () => `
+      <div class="number-display" style="animation:bounce 0.3s ease infinite;">${createNumberWithEyes('10!','#FF1744')}</div>
+      <div class="scene-text large">let's do it again!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(20)}
+    `
+  },
+  // COUNTING BREAK - Call & Response (66-80s)
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+    content: () => `
+      <div class="number-display" style="animation:numberPop 0.5s ease;">${createNumberWithEyes('1','#fff')}</div>
+      <div class="scene-text large">ONE!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:20%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:20%;">${SVG_GIRL(1.3)}</div>
+    `
+  },
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #ffd93d 0%, #f39c12 100%)',
+    content: () => `
+      <div class="number-display" style="animation:numberPop 0.5s ease;">${createNumberWithEyes('2','#fff')}</div>
+      <div class="scene-text large" style="color:#333;">TWO!</div>
+      <div class="boy-character dancing" style="bottom:5%;left:20%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:20%;">${SVG_GIRL(1.3)}</div>
+    `
+  },
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #6bcf7f 0%, #27ae60 100%)',
+    content: () => `
+      <div class="number-display" style="animation:numberPop 0.5s ease;">${createNumberWithEyes('3','#fff')}</div>
+      <div class="scene-text large">THREE!</div>
+      <div class="boy-character bouncing" style="bottom:5%;left:20%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:20%;">${SVG_GIRL(1.3)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #4ecdc4 0%, #2980b9 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#FFD93D')} ${createNumberWithEyes('5','#FF6B6B')} ${createNumberWithEyes('6','#6BCF7F')}</div>
+      <div class="scene-text large">FOUR! FIVE! SIX!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #a855f7 0%, #6c5ce7 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#4ECDC4')} ${createNumberWithEyes('8','#FFD93D')} ${createNumberWithEyes('9','#FF6B6B')}</div>
+      <div class="scene-text large">SEVEN! EIGHT! NINE!</div>
+      <div class="boy-character dancing" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character dancing" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #fd79a8 0%, #e84393 100%)',
+    content: () => `
+      <div class="scene-text" style="font-size:1.5rem;">And what comes next?</div>
+      <div class="number-display" style="animation:bounce 0.4s ease infinite;">${createNumberWithEyes('10!','#FFD93D')}</div>
+      <div class="scene-text large">TEN!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.3)}</div>
+      ${createConfetti(25)}
+    `
+  },
+  // FINAL CHORUS (80-92s)
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('1','#fff')} ${createNumberWithEyes('2','#fff')} ${createNumberWithEyes('3','#fff')}</div>
+      <div class="scene-text large">jump, jump, jump!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #6bcf7f 0%, #4ecdc4 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#fff')} ${createNumberWithEyes('5','#fff')} ${createNumberWithEyes('6','#fff')}</div>
+      <div class="scene-text large">stomp, stomp, stomp!</div>
+      <div class="boy-character stomping" style="bottom:5%;left:15%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character stomping" style="bottom:5%;right:15%;">${SVG_GIRL(1.2)}</div>
+    `
+  },
+  {
+    duration: 2500,
+    bg: 'linear-gradient(135deg, #a855f7 0%, #667eea 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#FFD93D')} ${createNumberWithEyes('8','#FF6B6B')} ${createNumberWithEyes('9','#6BCF7F')}</div>
+      <div class="scene-text large">clap in time!</div>
+      <div style="margin:10px;">${SVG_CLAPPING_HANDS}</div>
+      <div class="boy-character clapping" style="bottom:5%;left:15%;">${SVG_BOY(1)}</div>
+      <div class="girl-character clapping" style="bottom:5%;right:15%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    content: () => `
+      <div class="number-display" style="animation:bounce 0.3s ease infinite;font-size:clamp(5rem,15vw,12rem);">${createNumberWithEyes('10!','#FF1744')}</div>
+      <div class="scene-text large">WE DID IT!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:10%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:10%;">${SVG_GIRL(1.3)}</div>
+      ${createConfetti(40)}
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    content: () => `
+      <div class="scene-text" style="color:#333;">One, two, three, four, five!<br>Six, seven, eight, nine, ten!</div>
+      <div class="number-display" style="font-size:clamp(1.8rem,5vw,4rem);">
+        ${[1,2,3,4,5,6,7,8,9,10].map((n,i) => createNumberWithEyes(n, ['#FF6B6B','#FFD93D','#6BCF7F','#4ECDC4','#A855F7','#FF8E53','#42A5F5','#EC407A','#66BB6A','#FF1744'][i])).join(' ')}
+      </div>
+      <div class="boy-character dancing" style="bottom:2%;left:5%;">${SVG_BOY(0.9)}</div>
+      <div class="girl-character dancing" style="bottom:2%;right:5%;">${SVG_GIRL(0.9)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    content: () => `
+      <div class="scene-text large">Numbers are our friends,<br>So let's count again!</div>
+      <div class="boy-character waving" style="bottom:5%;left:20%;">${SVG_BOY(1.2)}</div>
+      <div class="girl-character waving" style="bottom:5%;right:20%;">${SVG_GIRL(1.2)}</div>
+      ${createConfetti(15)}
+    `
+  },
+  // OUTRO (92-105s)
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('1','#FF6B6B')} ${createNumberWithEyes('2','#FFD93D')} ${createNumberWithEyes('3','#6BCF7F')}</div>
+      <div class="scene-text" style="color:#333;">One... two... three...</div>
+      <div class="boy-character bouncing" style="bottom:5%;left:20%;">${SVG_BOY(1)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:20%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('4','#4ECDC4')} ${createNumberWithEyes('5','#A855F7')} ${createNumberWithEyes('6','#FF8E53')}</div>
+      <div class="scene-text" style="color:#333;">Four... five... six...</div>
+      <div class="boy-character bouncing" style="bottom:5%;left:20%;">${SVG_BOY(1)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:20%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 2000,
+    bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)',
+    content: () => `
+      <div class="number-display">${createNumberWithEyes('7','#42A5F5')} ${createNumberWithEyes('8','#EC407A')} ${createNumberWithEyes('9','#66BB6A')}</div>
+      <div class="scene-text" style="color:#333;">Seven... eight... nine...</div>
+      <div class="boy-character bouncing" style="bottom:5%;left:20%;">${SVG_BOY(1)}</div>
+      <div class="girl-character bouncing" style="bottom:5%;right:20%;">${SVG_GIRL(1)}</div>
+    `
+  },
+  {
+    duration: 3000,
+    bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    content: () => `
+      <div class="number-display" style="animation:bounce 0.4s ease infinite;font-size:clamp(6rem,18vw,14rem);">${createNumberWithEyes('10!','#FF1744')}</div>
+      <div class="scene-text large">TEN!</div>
+      <div class="boy-character jumping" style="bottom:5%;left:15%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character jumping" style="bottom:5%;right:15%;">${SVG_GIRL(1.3)}</div>
+      ${createConfetti(40)}
+    `
+  },
+  // Final message
+  {
+    duration: 4000,
+    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    content: () => `
+      <div class="scene-text large" style="animation:bounce 1s ease infinite;">"Great counting, everyone!"</div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        ${SVG_STAR(40)}${SVG_STAR(50)}${SVG_STAR(40)}
+      </div>
+      <div class="boy-character waving" style="bottom:5%;left:20%;">${SVG_BOY(1.3)}</div>
+      <div class="girl-character waving" style="bottom:5%;right:20%;">${SVG_GIRL(1.3)}</div>
+      ${createConfetti(30)}
+    `
+  }
 ];
 
-totalScenes = scenes.length;
+// Video Controller
+let currentScene = -1;
+let timer = null;
+let totalDuration = scenes.reduce((a,s) => a + s.duration, 0);
+let elapsed = 0;
+let progressInterval = null;
 
-function createBubbles(container) {
-  const colors = ['#FF6B6B','#FFE66D','#4ECDC4','#45B7D1','#96E6A1','#FF8E53','#C44569','#6C5CE7'];
-  for (let i = 0; i < 8; i++) {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    const size = 20 + Math.random() * 40;
-    bubble.style.width = size + 'px';
-    bubble.style.height = size + 'px';
-    bubble.style.left = Math.random() * 100 + '%';
-    bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
-    bubble.style.animationDelay = Math.random() * 4 + 's';
-    bubble.style.animationDuration = (4 + Math.random() * 4) + 's';
-    container.appendChild(bubble);
-  }
+function startVideo() {
+  document.getElementById('play-btn').style.display = 'none';
+  document.getElementById('replay-btn').style.display = 'none';
+  currentScene = -1;
+  elapsed = 0;
+  updateProgress();
+  nextScene();
+  progressInterval = setInterval(() => {
+    elapsed += 100;
+    updateProgress();
+  }, 100);
 }
 
-function createConfetti(container) {
-  const colors = ['#FF6B6B','#FFE66D','#4ECDC4','#45B7D1','#96E6A1','#FF8E53','#C44569','#6C5CE7'];
-  const shapes = ['circle','square','triangle'];
-  for (let i = 0; i < 30; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    const shape = shapes[Math.floor(Math.random() * shapes.length)];
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const size = 8 + Math.random() * 12;
-    confetti.style.left = Math.random() * 100 + '%';
-    confetti.style.top = '-20px';
-    confetti.style.animationDelay = Math.random() * 2 + 's';
-    confetti.style.width = size + 'px';
-    confetti.style.height = size + 'px';
-    confetti.style.background = color;
-    
-    if (shape === 'circle') {
-      confetti.style.borderRadius = '50%';
-    } else if (shape === 'triangle') {
-      confetti.style.width = '0';
-      confetti.style.height = '0';
-      confetti.style.background = 'transparent';
-      confetti.style.borderLeft = (size/2) + 'px solid transparent';
-      confetti.style.borderRight = (size/2) + 'px solid transparent';
-      confetti.style.borderBottom = size + 'px solid ' + color;
-    }
-    
-    container.appendChild(confetti);
-  }
+function replayVideo() {
+  startVideo();
 }
 
-function createStarburst(container) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '200');
-  svg.setAttribute('height', '200');
-  svg.setAttribute('viewBox', '0 0 200 200');
-  svg.classList.add('starburst');
-  svg.style.position = 'absolute';
-  svg.style.top = '50%';
-  svg.style.left = '50%';
-  svg.style.transform = 'translate(-50%,-50%)';
-  svg.style.pointerEvents = 'none';
-  
-  const colors = ['#FFE66D','#FF6B6B','#4ECDC4','#FF8E53','#96E6A1'];
-  for (let i = 0; i < 12; i++) {
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    const angle = (i * 30) * Math.PI / 180;
-    line.setAttribute('x1', '100');
-    line.setAttribute('y1', '100');
-    line.setAttribute('x2', 100 + Math.cos(angle) * 90);
-    line.setAttribute('y2', 100 + Math.sin(angle) * 90);
-    line.setAttribute('stroke', colors[i % colors.length]);
-    line.setAttribute('stroke-width', '4');
-    line.setAttribute('stroke-linecap', 'round');
-    svg.appendChild(line);
-  }
-  
-  container.appendChild(svg);
-  setTimeout(() => svg.remove(), 1000);
+function updateProgress() {
+  const pct = Math.min((elapsed / totalDuration) * 100, 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
 }
 
-function showScene(index) {
-  if (index >= totalScenes) {
-    endAnimation();
+function nextScene() {
+  currentScene++;
+  if (currentScene >= scenes.length) {
+    endVideo();
     return;
   }
   
-  currentScene = index;
-  const scene = scenes[index];
-  
-  // Update background
-  document.body.style.background = themes[scene.bg % themes.length];
-  
-  // Update progress
-  const progress = ((index + 1) / totalScenes) * 100;
-  document.getElementById('progress-bar').style.width = progress + '%';
-  
-  // Clear old scenes
-  const oldScenes = document.querySelectorAll('.scene');
-  oldScenes.forEach(s => {
-    s.classList.remove('active');
-    setTimeout(() => s.remove(), 600);
-  });
-  
-  // Create new scene
-  const sceneEl = document.createElement('div');
-  sceneEl.className = 'scene';
-  sceneEl.innerHTML = scene.content();
-  
-  // Add animation class
-  const innerWrapper = document.createElement('div');
-  innerWrapper.className = scene.transition;
-  innerWrapper.style.display = 'flex';
-  innerWrapper.style.flexDirection = 'column';
-  innerWrapper.style.alignItems = 'center';
-  innerWrapper.style.justifyContent = 'center';
-  innerWrapper.style.width = '100%';
-  innerWrapper.style.height = '100%';
-  innerWrapper.innerHTML = sceneEl.innerHTML;
-  sceneEl.innerHTML = '';
-  sceneEl.appendChild(innerWrapper);
-  
-  // Add floating bubbles
-  createBubbles(sceneEl);
-  
-  // Add confetti on special scenes (10s and endings)
-  if (index === 7 || index === 11 || index === 30 || index === 33 || index === 40 || index === 41) {
-    createConfetti(sceneEl);
-    setTimeout(() => createStarburst(sceneEl), 300);
-  }
-  
-  document.getElementById('stage').appendChild(sceneEl);
-  
-  // Trigger active state
-  requestAnimationFrame(() => {
-    sceneEl.classList.add('active');
-  });
-  
-  // Schedule next scene
-  animationTimer = setTimeout(() => showScene(index + 1), scene.duration);
-}
-
-function startAnimation() {
-  document.getElementById('play-btn').style.display = 'none';
-  document.getElementById('replay-btn').style.display = 'none';
-  isPlaying = true;
-  showScene(0);
-}
-
-function endAnimation() {
-  isPlaying = false;
-  document.getElementById('progress-bar').style.width = '100%';
-  
-  // Clear any remaining scenes
+  const container = document.getElementById('scenes-container');
+  // Remove old scenes
+  const oldScenes = container.querySelectorAll('.scene');
+  oldScenes.forEach(s => s.classList.remove('active'));
   setTimeout(() => {
-    const oldScenes = document.querySelectorAll('.scene');
     oldScenes.forEach(s => s.remove());
-    
-    document.body.style.background = 'linear-gradient(135deg, #96E6A1, #4ECDC4)';
-    document.getElementById('replay-btn').style.display = 'block';
-  }, 1000);
+  }, 600);
+  
+  const scene = scenes[currentScene];
+  const div = document.createElement('div');
+  div.className = 'scene active';
+  div.style.background = scene.bg;
+  div.innerHTML = scene.content();
+  container.appendChild(div);
+  
+  // Trigger reflow then activate
+  requestAnimationFrame(() => {
+    div.classList.add('active');
+  });
+  
+  timer = setTimeout(nextScene, scene.duration);
 }
 
-function replay() {
-  document.getElementById('replay-btn').style.display = 'none';
-  document.getElementById('progress-bar').style.width = '0%';
-  currentScene = -1;
-  showScene(0);
+function endVideo() {
+  clearInterval(progressInterval);
+  document.getElementById('progress-bar').style.width = '100%';
+  setTimeout(() => {
+    document.getElementById('replay-btn').style.display = 'flex';
+  }, 500);
 }
 </script>
 </body>
